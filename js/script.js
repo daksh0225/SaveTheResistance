@@ -1,75 +1,94 @@
+import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
+import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/loaders/GLTFLoader.js'
+import {Game} from './game.js';
+
 function getRndInteger(min, max) {
     return Math.floor(Math.random() * (max - min) ) + min;
 }
 
-var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(90, window.innerWidth/window.innerHeight, 0.1, 1000);
+var game = new Game();
+document.body.appendChild(game.renderer.domElement);
 
-var renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+var width = window.innerWidth;
+var height = window.innerHeight;
+game.renderer.setSize(width, height);
+game.camera.aspect = width/height;
+game.camera.updateProjectionMatrix();
+
 
 window.addEventListener('resize', function()
 {
     var width = window.innerWidth;
     var height = window.innerHeight;
-    renderer.setSize(width, height);
-    camera.aspect = width/height;
-    camera.updateProjectionMatrix();
+    game.renderer.setSize(width, height);
+    game.camera.aspect = width/height;
+    game.camera.updateProjectionMatrix();
 });
+
+export function loadModel(loader, url, type)
+{
+    loader.load(url, function(gltf)
+    {
+        const root = gltf.scene;
+        if(type == 'player')
+        {
+            root.rotation.y = Math.PI;
+        }
+        game.objects[type] = root;
+    }, undefined, function(error)
+    {
+        console.log(error);
+    });
+}
+
+const manager = new THREE.LoadingManager();
+const loader = new GLTFLoader(manager);
+
+var player_url = 'http://localhost:8000/assets/millenium_falcon/scene.gltf';
+var enemy_url = 'http://localhost:8000/assets/tie_interceptor/scene.gltf';
+var boss_url = 'http://localhost:8000/assets/tie_fighter/scene.gltf';
+loadModel(loader, player_url, 'player');
+loadModel(loader, enemy_url, 'enemy');
+loadModel(loader, boss_url, 'boss');
 
 document.addEventListener("keypress", onDocumentKeyPress, false);
 
-
-//create the shapes
-var geometry = new THREE.BoxGeometry(1, 1, 1);
-var material = new THREE.MeshBasicMaterial({color: 0x00ff00, wireframe: false});
-var cube = new THREE.Mesh(geometry, material);
-cube.position.x = 0;
-cube.position.y = 0;
-scene.add(cube);
-
-var levelLength = getRndInteger(60, 100);
-var numEnemies = getRndInteger(10, levelLength/2);
-var numStars = getRndInteger(5, levelLength/3);
-console.log(levelLength, numEnemies);
-var enemies = []
-
-for(var i=0; i<numEnemies;i++)
+function loadEnemies()
 {
-    var gmetry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-    gmetry.scale(0.5, 0.5, 0.5);
-    var mat = new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true});
-    var box = new THREE.Mesh(gmetry, mat);
-    box.position.z = -(i+1)*5;
-    box.position.x = getRndInteger(-5, 5);
-    scene.add(box);
-    enemies.push(box);
+    var enemies = []
+    for(var i=0; i<game.numEnemies;i++)
+    {
+        var obj = game.objects['enemy'].clone();
+        obj.scale.x = 0.1;
+        obj.scale.y = 0.1;
+        obj.scale.z = 0.1;
+        obj.position.z = -(i+1)*5;
+        obj.position.x = getRndInteger(-5, 5);
+        game.scene.add(obj);
+        enemies.push(obj);
+    }
+    return enemies;
 }
 
-var stars = []
-
-for(var i=0; i<numStars;i++)
+function loadStars(game)
 {
-    var gmetry = new THREE.SphereGeometry(1, 5, 5);
-    gmetry.scale(0.5, 0.5, 0.5);
-    var mat = new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: true});
-    var star = new THREE.Mesh(gmetry, mat);
-    star.position.z = -(i+1)*5;
-    star.position.x = getRndInteger(-5, 5);
-    scene.add(star);
-    stars.push(star);
+    var stars = []
+    for(var i=0; i<game.numStars;i++)
+    {
+        var gmetry = new THREE.SphereGeometry(1, 5, 5);
+        gmetry.scale(0.5, 0.5, 0.5);
+        var mat = new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: true});
+        var star = new THREE.Mesh(gmetry, mat);
+        star.position.z = -(i+1)*5;
+        star.position.x = getRndInteger(-5, 5);
+        game.scene.add(star);
+        stars.push(star);
+    }
+    return stars;
 }
 
-var bossGeometry = new THREE.BoxGeometry(10, 8, 3);
-var bossMaterial = new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: true});
-var bossCube = new THREE.Mesh(bossGeometry, bossMaterial);
-bossCube.position.z = -(numEnemies+5)*5;
-scene.add(bossCube);
-
-camera.position.z = 6;
-camera.position.y = 2;
-// camera.lookAt(cube.position.x, cube.position.y, cube.position.z);
+game.camera.position.z = 1;
+game.camera.position.y = 40;
 
 //game logic
 function onDocumentKeyPress(event)
@@ -77,41 +96,32 @@ function onDocumentKeyPress(event)
     var key = event.code;
     if(key == "KeyW")
     {
-        cube.position.z -= 0.3;
+        game.objects['player'].position.z -= 0.3;
     }
     if(key == "KeyS")
     {
-        cube.position.z += 0.3;
+        game.objects['player'].position.z += 0.4;
     }
     if(key == "KeyA")
     {
-        cube.position.x -= 0.3;
+        game.objects['player'].position.x -= 0.3;
     }
     if(key == "KeyD")
     {
-        cube.position.x += 0.3;
+        game.objects['player'].position.x += 0.3;
     }
 }
 
-var update = function(dt)
+function update(dt)
 {
-    // camera.position.z -= 0.1;
-    // cube.position.z -= 0.1;
-    for(box in enemies)
-    {
-        enemies[box].position.z += 0.3;
-    }
-    for(box in stars)
-    {
-        stars[box].position.z += 0.05;
-    }
-    bossCube.position.z += 0.3;
+    game.camera.position.z -= 0.1;
+    game.objects['player'].position.z -= 0.1;
 };
 
 //draw scene
-var render = function()
+function render()
 {
-    renderer.render(scene, camera);
+    game.renderer.render(game.scene, game.camera);
 };
 
 var deltaTime = 0;
@@ -128,4 +138,16 @@ var GameLoop = function()
     render();
 }
 
-GameLoop();
+manager.onLoad = function()
+{
+    // console.log(game.objects);
+    game.scene.add(game.objects['player']);
+    game.objects['boss'].position.z = -100;
+    game.objects['boss'].position.y = -6;
+    game.scene.add(game.objects['boss']);
+    game.camera.lookAt(game.objects['player'].position.x, game.objects['player'].position.y, game.objects['player'].position.z);
+    // loadEnemies(game);
+    game.loadEnemies();
+    GameLoop();
+    console.log("game started");
+}

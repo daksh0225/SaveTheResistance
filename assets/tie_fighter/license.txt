@@ -1,0 +1,11 @@
+Model Information:
+* title:	special forces tie fighter [tie/sf]
+* source:	https://sketchfab.com/3d-models/special-forces-tie-fighter-tiesf-f4983354dc2f46129d84ae060bc85ad0
+* author:	sk19102007 (https://sketchfab.com/sk192007)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "special forces tie fighter [tie/sf]" (https://sketchfab.com/3d-models/special-forces-tie-fighter-tiesf-f4983354dc2f46129d84ae060bc85ad0) by sk19102007 (https://sketchfab.com/sk192007) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
