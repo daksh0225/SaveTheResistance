@@ -2,8 +2,20 @@ import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threej
 import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/loaders/GLTFLoader.js'
 import {Game} from './game.js';
 
-function getRndInteger(min, max) {
-    return Math.floor(Math.random() * (max - min) ) + min;
+export function loadModel(loader, url, type)
+{
+    loader.load(url, function(gltf)
+    {
+        const root = gltf.scene;
+        if(type == 'player')
+        {
+            root.rotation.y = Math.PI;
+        }
+        game.objects[type] = root;
+    }, undefined, function(error)
+    {
+        console.log(error);
+    });
 }
 
 var game = new Game();
@@ -25,21 +37,6 @@ window.addEventListener('resize', function()
     game.camera.updateProjectionMatrix();
 });
 
-export function loadModel(loader, url, type)
-{
-    loader.load(url, function(gltf)
-    {
-        const root = gltf.scene;
-        if(type == 'player')
-        {
-            root.rotation.y = Math.PI;
-        }
-        game.objects[type] = root;
-    }, undefined, function(error)
-    {
-        console.log(error);
-    });
-}
 
 const manager = new THREE.LoadingManager();
 const loader = new GLTFLoader(manager);
@@ -47,106 +44,64 @@ const loader = new GLTFLoader(manager);
 var player_url = 'http://localhost:8000/assets/millenium_falcon/scene.gltf';
 var enemy_url = 'http://localhost:8000/assets/tie_interceptor/scene.gltf';
 var boss_url = 'http://localhost:8000/assets/tie_fighter/scene.gltf';
+var death_star_url = 'http://localhost:8000/assets/death_star/scene.gltf';
+var coruscant_url = 'http://localhost:8000/assets/coruscant/scene.gltf';
+var earth_url = 'http://localhost:8000/assets/earth/scene.gltf';
 loadModel(loader, player_url, 'player');
 loadModel(loader, enemy_url, 'enemy');
 loadModel(loader, boss_url, 'boss');
+loadModel(loader, death_star_url, 'death_star');
+loadModel(loader, coruscant_url, 'coruscant');
+loadModel(loader, earth_url, 'earth');
 
-document.addEventListener("keypress", onDocumentKeyPress, false);
 
-function loadEnemies()
-{
-    var enemies = []
-    for(var i=0; i<game.numEnemies;i++)
-    {
-        var obj = game.objects['enemy'].clone();
-        obj.scale.x = 0.1;
-        obj.scale.y = 0.1;
-        obj.scale.z = 0.1;
-        obj.position.z = -(i+1)*5;
-        obj.position.x = getRndInteger(-5, 5);
-        game.scene.add(obj);
-        enemies.push(obj);
-    }
-    return enemies;
-}
+game.camera.position.z = 10;
+game.camera.position.y = 5;
 
-function loadStars(game)
-{
-    var stars = []
-    for(var i=0; i<game.numStars;i++)
-    {
-        var gmetry = new THREE.SphereGeometry(1, 5, 5);
-        gmetry.scale(0.5, 0.5, 0.5);
-        var mat = new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: true});
-        var star = new THREE.Mesh(gmetry, mat);
-        star.position.z = -(i+1)*5;
-        star.position.x = getRndInteger(-5, 5);
-        game.scene.add(star);
-        stars.push(star);
-    }
-    return stars;
-}
-
-game.camera.position.z = 1;
-game.camera.position.y = 40;
-
-//game logic
-function onDocumentKeyPress(event)
-{
-    var key = event.code;
-    if(key == "KeyW")
-    {
-        game.objects['player'].position.z -= 0.3;
-    }
-    if(key == "KeyS")
-    {
-        game.objects['player'].position.z += 0.4;
-    }
-    if(key == "KeyA")
-    {
-        game.objects['player'].position.x -= 0.3;
-    }
-    if(key == "KeyD")
-    {
-        game.objects['player'].position.x += 0.3;
-    }
-}
-
-function update(dt)
-{
-    game.camera.position.z -= 0.1;
-    game.objects['player'].position.z -= 0.1;
-};
-
-//draw scene
-function render()
-{
-    game.renderer.render(game.scene, game.camera);
-};
-
-var deltaTime = 0;
-var lastFrame = 0;
 
 //run game loop (update, render, repeat)
 var GameLoop = function()
 {
-    var currentFrame = Date.now();
-    deltaTime = currentFrame - lastFrame;
-    lastFrame = currentFrame;
     requestAnimationFrame(GameLoop);
-    update(deltaTime);
-    render();
+    game.update();
+    game.render();
 }
 
 manager.onLoad = function()
 {
     // console.log(game.objects);
+    game.objects['player'].scale.x = 0.75;
+    game.objects['player'].scale.y = 0.75;
+    game.objects['player'].scale.z = 0.75;
     game.scene.add(game.objects['player']);
     game.objects['boss'].position.z = -100;
     game.objects['boss'].position.y = -6;
     game.scene.add(game.objects['boss']);
-    game.camera.lookAt(game.objects['player'].position.x, game.objects['player'].position.y, game.objects['player'].position.z);
-    // loadEnemies(game);
+    game.objects['death_star'].position.x = -50;
+    game.objects['death_star'].position.z = -100;
+    game.objects['death_star'].scale.x = 0.05;
+    game.objects['death_star'].scale.y = 0.05;
+    game.objects['death_star'].scale.z = 0.05;
+    game.objects['death_star'].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].material.metalness = 0;
+    game.objects['death_star'].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[1].material.metalness = 0;
+    game.scene.add(game.objects['death_star']);
+    console.log(game.objects['death_star'])
+    game.objects['coruscant'].position.x = 20;
+    game.objects['coruscant'].position.z = -50;
+    game.objects['coruscant'].scale.x = 0.05;
+    game.objects['coruscant'].scale.y = 0.05;
+    game.objects['coruscant'].scale.z = 0.05;
+    game.objects['coruscant'].children[0].children[0].children[0].children[0].children[0].children[0].material.metalness = 0;
+    game.objects['coruscant'].children[0].children[0].children[0].children[0].children[0].children[0].color = new THREE.Color(0xffffff);
+    game.scene.add(game.objects['coruscant']);
+    console.log(game.objects['coruscant'])
+    game.objects['earth'].position.x = 20;
+    game.objects['earth'].position.z = -100;
+    game.objects['earth'].scale.x = 0.05;
+    game.objects['earth'].scale.y = 0.05;
+    game.objects['earth'].scale.z = 0.05;
+    game.scene.add(game.objects['earth']);
+    // game.camera.lookAt(game.objects['player'].position.x, game.objects['player'].position.y, game.objects['player'].position.z);
     game.loadEnemies();
     GameLoop();
     console.log("game started");
