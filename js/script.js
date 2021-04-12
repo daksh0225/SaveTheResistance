@@ -18,6 +18,12 @@ export function loadModel(loader, url, type)
     });
 }
 
+var progress = document.createElement('div');
+var progressBar = document.createElement('div');
+progressBar.id = "progressbar";
+progress.appendChild(progressBar);
+document.body.appendChild(progress);
+
 var game = new Game();
 document.body.appendChild(game.renderer.domElement);
 
@@ -27,8 +33,8 @@ game.renderer.setSize(width, height);
 game.camera.aspect = width/height;
 game.camera.updateProjectionMatrix();
 
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-geometry.scale(0.25, 0.25, 0.25);
+const geometry = new THREE.CylinderGeometry(1, 1, 10, 1000);
+geometry.scale(0.1, 0.1, 0.1);
 const material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
 const cylinder = new THREE.Mesh( geometry, material );
 game.objects['missile'] = cylinder;
@@ -48,11 +54,14 @@ const loader = new GLTFLoader(manager);
 
 var player_url = 'http://localhost:8000/assets/millenium_falcon/scene.gltf';
 var enemy_url = 'http://localhost:8000/assets/tie_interceptor/scene.gltf';
+var star_url = 'http://localhost:8000/assets/star/scene.gltf';
 var boss_url = 'http://localhost:8000/assets/space_fighter/scene.gltf';
-// var boss_url = 'http://localhost:8000/assets/tie_fighter/scene.gltf';
+var red_saber_url = 'http://localhost:8000/assets/red_saber/scene.gltf';
 loadModel(loader, player_url, 'player');
 loadModel(loader, enemy_url, 'enemy');
+loadModel(loader, star_url, 'star');
 loadModel(loader, boss_url, 'boss');
+// loadModel(loader, red_saber_url, 'missile');
 var planets = [
     'death_star',
     'earth',
@@ -64,13 +73,12 @@ var p;
 for (p in planets)
 {
     var url = 'http://localhost:8000/assets/'+planets[p]+'/scene.gltf';
-    console.log(url);
     loadModel(loader, url, planets[p]);
 }
 
 
 game.camera.position.z = 25;
-game.camera.position.y = 25;
+game.camera.position.y = 5;
 
 
 //run game loop (update, render, repeat)
@@ -81,8 +89,16 @@ var GameLoop = function()
     game.render();
 }
 
+
+manager.onProgress = function ( item, loaded, total )
+{
+    progressBar.style.width = (loaded / total * 100) + '%';
+};
+
 manager.onLoad = function()
 {
+    progressBar.style.display = "none";
+    progress.style.height = 0;
     game.objects['player'].scale.x = 0.75;
     game.objects['player'].scale.y = 0.75;
     game.objects['player'].scale.z = 0.75;
@@ -91,12 +107,15 @@ manager.onLoad = function()
     game.objects['boss'].scale.y = 1.25;
     game.objects['boss'].scale.z = 1.25;
     game.objects['boss'].position.z = -100;
-    // game.objects['boss'].position.y = -6;
     game.scene.add(game.objects['boss']);
+    // game.objects['missile'].scale.x = 0.05;
+    // game.objects['missile'].scale.y = 0.05;
+    // game.objects['missile'].scale.z = 0.05;
+    // game.objects['missile'].rotation.x = Math.PI;
+    console.log(game.objects['missile'])
     for (p in planets)
     {
         var planet = planets[p];
-        // console.log(planet)
         var scale = 0.05;
         if(planet == 'death_star')
             scale = 0.02;
@@ -111,8 +130,16 @@ manager.onLoad = function()
     }
     game.objects['death_star'].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].material.metalness = 0;
     game.objects['death_star'].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[1].material.metalness = 0;
-    game.camera.lookAt(game.objects['player'].position.x, game.objects['player'].position.y, game.objects['player'].position.z);
+    // game.camera.lookAt(game.objects['player'].position.x, game.objects['player'].position.y, game.objects['player'].position.z);
     game.loadEnemies();
+    game.loadStars();
     GameLoop();
+    game.audioLoader.load('http://localhost:8000/assets/sounds/backgroundSound.ogg', function(buffer)
+    {
+        game.backgroundSound.setBuffer(buffer);
+        game.backgroundSound.setLoop(true);
+        game.backgroundSound.setVolume(0.5);
+        game.backgroundSound.play();
+    });
     console.log("game started");
 }

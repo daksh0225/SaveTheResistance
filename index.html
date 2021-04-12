@@ -8,17 +8,75 @@
         {
            margin: 0;
            background-image: url("http://localhost:8000/assets/space1.png");
-           background-size: contain;
-           /* background-color: red; */
+           background-size: cover;
         }
-        canvas
-        {
-            height: 100%;
+        div {
             width: 100%;
+            height: 5px;
+            background: transparent;
+        }
+        #progressbar
+        {
+            width: 100%;
+            height: 100%;
+            background: red;
+            border: none;
+        }
+        #hud
+        {
+            position: absolute;
+            background-color: white;
+            height: 100px;
+            width: 200px;
+            margin-top: 1px;
+            margin-left: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+            background: transparent;
+        }
+        #health
+        {
+            border: solid white 5px;
+            background: transparent;
+            height: 10px;
+        }
+        #healthbar
+        {
+            width: 100%;
+            height: 100%;
+            background: red;
+            display: flex;
+            flex-direction: row;
+            /* display: inline; */
+        }
+        .score
+        {
+            /* width: 100%; */
+            color: white;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
         }
     </style>
 
     <body>
+        <div id="hud">
+            <div id="health">
+                <!-- <span>Health:</span> -->
+                <div id="healthbar"></div>
+            </div>
+            <div class="score">
+                <span><pre>Score: </pre></span>
+                <span class="board" id="scoreboard"></span>
+            </div> 
+            <div class="score">
+                <span><pre>Missiles Left: </pre></span>
+                <span class="board" id="missilesleft"></span>
+            </div> 
+        </div>
         <script type="module" src="js/game.js"></script>
         <script type="module" src="js/script.js"></script>
     </body>
