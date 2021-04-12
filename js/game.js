@@ -1,7 +1,7 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
 import {InputManager} from './inputManager.js';
 
-function getRndInteger(min, max) {
+export function getRndInteger(min, max) {
     return Math.floor(Math.random() * (max - min) ) + min;
 }
 
@@ -10,7 +10,6 @@ export class Game
 	constructor()
 	{
 		this.scene = new THREE.Scene();
-		// this.scene.background = new THREE.Color(0x4a454a);
 		this.renderer = new THREE.WebGLRenderer({alpha: true});
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
@@ -24,6 +23,15 @@ export class Game
 		this.objects = {};
 		this.enemies = [];
 		this.stars = [];
+		this.planets = [
+			'death_star',
+			'earth',
+			'venus',
+			'jupiter',
+			'uranus',
+		];
+		this.missiles = []
+		this.numMissiles = 500;
 		this.inputManager = new InputManager();
 	}
 	loadEnemies = function()
@@ -42,7 +50,7 @@ export class Game
 		return true;
 	}
 
-	updatePlayerPosition = function()
+	processInput = function()
 	{
 		if(this.inputManager.keys.W.down)
 		{
@@ -54,9 +62,12 @@ export class Game
 		}
 		if(this.inputManager.keys.A.down)
 		{
-			this.objects['player'].position.x -= 0.1;
-			// if(this.objects['player'].rotation.z > -30*Math.PI/180)
+			if(this.objects['player'].position.x > -15)
+				this.objects['player'].position.x -= 0.1;
+			if(this.objects['player'].rotation.z > -90*Math.PI/180)
+			{
 				this.objects['player'].rotation.z -= Math.PI/180;
+			}
 		}
 		else
 		{
@@ -65,14 +76,36 @@ export class Game
 		}
 		if(this.inputManager.keys.D.down)
 		{
-			this.objects['player'].position.x += 0.1;
-			// if(this.objects['player'].rotation.z < 30*Math.PI/180)
+			if(this.objects['player'].position.x < 15)
+				this.objects['player'].position.x += 0.1;
+			if(this.objects['player'].rotation.z < 90*Math.PI/180)
+			{
 				this.objects['player'].rotation.z += Math.PI/180;
+			}
 		}
 		else
 		{
 			if(this.objects['player'].rotation.z > 0)
 				this.objects['player'].rotation.z -= Math.PI/180;
+		}
+		if(this.inputManager.keys.F.down)
+		{
+			var missile = this.objects['missile'].clone();
+			missile.position.x = this.objects['player'].position.x;
+			missile.position.y = this.objects['player'].position.y;
+			missile.position.z = this.objects['player'].position.z;
+			this.scene.add(missile);
+			this.missiles.push(missile);
+			this.numMissiles--;
+		}
+	}
+
+	moveMissiles = function()
+	{
+		for(var m in this.missiles)
+		{
+			if(this.missiles[m].position.z-this.camera.position.z < 100)
+				this.missiles[m].position.z -= 0.5;
 		}
 	}
 
@@ -80,7 +113,26 @@ export class Game
 	{
 		this.camera.position.z -= 0.1;
 		this.objects['player'].position.z -= 0.1;
-		this.updatePlayerPosition();
+		// this.inputManager.update();
+		this.processInput();
+		this.moveMissiles();
+		for(var p in this.planets)
+		{
+			var root = this.objects[this.planets[p]];
+			if(root.position.z > this.camera.position.z)
+			{
+				root.traverse( ( object ) => {
+
+					if ( object.isMesh )
+					{
+						object.material.color.set( Math.floor(Math.random()*16777215) );
+					}
+				
+				});
+				root.position.z -= (this.planets.length)*25;
+			}
+		}
+		console.log(this.numMissiles);
 	}
 
 	render = function()

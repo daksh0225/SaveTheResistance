@@ -45,8 +45,7 @@ export class InputManager {
 		addKey('KeyD', 'D');
 		addKey('KeyW', 'W');
 		addKey('KeyS', 'S');
-		addKey(90, 'a');
-		addKey(88, 'b');
+		addKey('KeyF', 'F');
 
 		window.addEventListener('keydown', (e) => 
 		{
