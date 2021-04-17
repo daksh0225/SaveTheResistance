@@ -35,9 +35,13 @@ game.camera.updateProjectionMatrix();
 
 const geometry = new THREE.CylinderGeometry(1, 1, 10, 1000);
 geometry.scale(0.1, 0.1, 0.1);
-const material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+const material = new THREE.MeshBasicMaterial( {color: 0x4db1eb} );
 const cylinder = new THREE.Mesh( geometry, material );
 game.objects['missile'] = cylinder;
+
+const new_material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+const new_cylinder = new THREE.Mesh( geometry, new_material );
+game.objects['enemy_missile'] = new_cylinder;
 
 window.addEventListener('resize', function()
 {
@@ -56,9 +60,8 @@ var player_url = 'http://localhost:8000/assets/millenium_falcon/scene.gltf';
 var enemy_url = 'http://localhost:8000/assets/tie_interceptor/scene.gltf';
 var star_url = 'http://localhost:8000/assets/star/scene.gltf';
 var boss_url = 'http://localhost:8000/assets/space_fighter/scene.gltf';
-var red_saber_url = 'http://localhost:8000/assets/red_saber/scene.gltf';
 loadModel(loader, player_url, 'player');
-loadModel(loader, enemy_url, 'enemy');
+loadModel(loader, boss_url, 'enemy');
 loadModel(loader, star_url, 'star');
 loadModel(loader, boss_url, 'boss');
 // loadModel(loader, red_saber_url, 'missile');
@@ -77,16 +80,26 @@ for (p in planets)
 }
 
 
-game.camera.position.z = 25;
+game.camera.position.z = 20;
 game.camera.position.y = 5;
 
 
 //run game loop (update, render, repeat)
 var GameLoop = function()
 {
-    requestAnimationFrame(GameLoop);
-    game.update();
-    game.render();
+    if(game.health > 0)
+    {
+        requestAnimationFrame(GameLoop);
+        game.update();
+        game.render();
+    }
+    else
+    {
+        console.log('game fininshed');
+        game.backgroundSound.stop();
+        game.scene.clear();
+        game = null;
+    }
 }
 
 
@@ -107,11 +120,7 @@ manager.onLoad = function()
     game.objects['boss'].scale.y = 1.25;
     game.objects['boss'].scale.z = 1.25;
     game.objects['boss'].position.z = -100;
-    game.scene.add(game.objects['boss']);
-    // game.objects['missile'].scale.x = 0.05;
-    // game.objects['missile'].scale.y = 0.05;
-    // game.objects['missile'].scale.z = 0.05;
-    // game.objects['missile'].rotation.x = Math.PI;
+    // game.scene.add(game.objects['boss']);
     console.log(game.objects['missile'])
     for (p in planets)
     {
