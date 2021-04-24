@@ -56,10 +56,10 @@ window.addEventListener('resize', function()
 const manager = new THREE.LoadingManager();
 const loader = new GLTFLoader(manager);
 
-var player_url = '../assets/millenium_falcon/scene.gltf';
-var enemy_url = '../assets/tie_interceptor/scene.gltf';
-var star_url = '../assets/star/scene.gltf';
-var boss_url = '../assets/space_fighter/scene.gltf';
+var player_url = './assets/millenium_falcon/scene.gltf';
+var enemy_url = './assets/tie_interceptor/scene.gltf';
+var star_url = './assets/star/scene.gltf';
+var boss_url = './assets/space_fighter/scene.gltf';
 loadModel(loader, player_url, 'player');
 loadModel(loader, boss_url, 'enemy');
 loadModel(loader, star_url, 'star');
@@ -75,7 +75,7 @@ var planets = [
 var p;
 for (p in planets)
 {
-    var url = '../assets/'+planets[p]+'/scene.gltf';
+    var url = './assets/'+planets[p]+'/scene.gltf';
     loadModel(loader, url, planets[p]);
 }
 
@@ -152,7 +152,7 @@ manager.onLoad = function()
     game.loadEnemies();
     game.loadStars();
     GameLoop();
-    game.audioLoader.load('../assets/sounds/backgroundSound.ogg', function(buffer)
+    game.audioLoader.load('./assets/sounds/backgroundSound.ogg', function(buffer)
     {
         game.backgroundSound.setBuffer(buffer);
         game.backgroundSound.setLoop(true);
