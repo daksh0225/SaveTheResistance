@@ -97,8 +97,17 @@ var GameLoop = function()
     {
         console.log('game fininshed');
         game.backgroundSound.stop();
-        game.scene.clear();
-        game = null;
+        while(game.scene.children.length > 0) {
+            game.scene.remove(game.scene.children[0]);
+        }
+        game.renderer.clear();
+        var body = document.getElementById('body');
+        body.style.display = 'flex';
+        body.style.flexDirection = 'column';
+        body.style.alignItems = 'center';
+        body.style.justifyContent = 'center';
+        document.getElementById("hud").style.height = "150px"
+        document.getElementById("hud").innerHTML += "<p>Game Over!!!</p>";
     }
 }
 
