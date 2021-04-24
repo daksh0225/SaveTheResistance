@@ -17,12 +17,12 @@ export class Game
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		var texture = this.loader.load(
 			[
-				'http://localhost:8000/assets/skybox/StarSkybox041.png',
-				'http://localhost:8000/assets/skybox/StarSkybox042.png',
-				'http://localhost:8000/assets/skybox/StarSkybox043.png',
-				'http://localhost:8000/assets/skybox/StarSkybox044.png',
-				'http://localhost:8000/assets/skybox/StarSkybox045.png',
-				'http://localhost:8000/assets/skybox/StarSkybox046.png',
+				'../assets/skybox/StarSkybox041.png',
+				'../assets/skybox/StarSkybox042.png',
+				'../assets/skybox/StarSkybox043.png',
+				'../assets/skybox/StarSkybox044.png',
+				'../assets/skybox/StarSkybox045.png',
+				'../assets/skybox/StarSkybox046.png',
 			]
 		)
 		this.scene.background = texture;
@@ -67,7 +67,7 @@ export class Game
 		var sound = this.sound
 		if(sound.isPlaying)
 			sound.isPlaying = false;
-		this.audioLoader.load('http://localhost:8000/assets/sounds/lasers.ogg', function(buffer)
+		this.audioLoader.load('../assets/sounds/lasers.ogg', function(buffer)
 		{
 			sound.setBuffer(buffer);
 			sound.setLoop(false);
@@ -81,7 +81,7 @@ export class Game
 		var sound = this.blastSound;
 		if(sound.isPlaying)
 			sound.isPlaying = false;
-		this.audioLoader.load('http://localhost:8000/assets/sounds/Explosion+9.mp3', function(buffer)
+		this.audioLoader.load('../assets/sounds/Explosion+9.mp3', function(buffer)
 		{
 			sound.setBuffer(buffer);
 			sound.setLoop(false);
